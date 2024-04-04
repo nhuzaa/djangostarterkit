@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "djangostarterkit"
+version = "0.0.1"
+description = "Django start kit that's dockerized and ready for a SaaS application with Poetry for dependency management involves several steps"
+authors = ["Rohit Sthapit <nhuzaa@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+Django = "^5.0.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
