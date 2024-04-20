@@ -3,6 +3,4 @@ __pycache__
 Dockerfile
 .git
 .gitignore
-poetry.lock
-pyproject.toml
 

@@ -1,0 +1,70 @@
+# Usage:
+# make          # setup packages and install required dependencies
+# make setup    # install poetry and pre-commit hooks
+# make update   # upgrade poetry dependencies
+# make upgrade  # upgrade pre-commit hooks
+# make clean    # remove ALL Clean out cached pre-commit files
+# make tidy     # run pre-commit hooks
+# make test		# run all tests using PyTest
+include .env
+
+ifeq ($(OS),Windows_NT)
+	SHELL := cmd
+	POETRY_HOME := $(HOME)\.poetry
+	PATH := $(POETRY_HOME)\bin:$(PATH)
+	PYTHON := python
+	export PATH
+	export POETRY_HOME
+else
+	SHELL := /bin/bash
+	POETRY_HOME := $(HOME)/.poetry
+	PATH := $(POETRY_HOME)/bin:$(PATH)
+	PYTHON := python3
+	export PATH
+	export POETRY_HOME
+endif
+
+.PHONY: all poetry docker install update migrate linting-hook django-setup upgrade-precommit clean tidy test build
+all: poetry docker install migrate django-setup linting-hook upgrade-precommit clean tidy
+
+poetry:
+	@curl -sSL https://install.python-poetry.org | ${PYTHON}
+
+docker:
+	@docker-compose up -d
+
+install:
+	@poetry install --no-root
+
+update:
+	@poetry self update
+	@poetry update
+
+migrate:
+	@poetry run manage migrate
+
+linting-hook:
+	@poetry run pre-commit install -f
+
+make-migrations:
+	@poetry run manage makemigrations
+
+django-setup:
+	@poetry run ${PYTHON} manage.py create_superuser --username=${DJANGO_SUPERUSER_USERNAME} --password=${DJANGO_SUPERUSER_PASSWORD} --email=${DJANGO_SUPERUSER_EMAIL}
+
+upgrade-precommit:
+	@poetry run pre-commit autoupdate
+
+clean:
+	@poetry cache clear pypi --all -n
+	@poetry run pre-commit clean
+	@poetry run pre-commit gc
+
+tidy:
+	@poetry run pre-commit run --all-files
+
+test:
+	@pytest
+
+runserver:
+	@poetry run ${PYTHON} manage.py runserver
